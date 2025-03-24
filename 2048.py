@@ -1,8 +1,8 @@
 import gradio as gr
 import random
 import copy
+import pyautogui
 
-# Game state
 class Game:
     def __init__(self):
         self.board = [[0] * 4 for _ in range(4)]
@@ -95,10 +95,9 @@ def board_to_html(board):
     html += "</table>"
     return html
 
-# Game instance
+
 game = Game()
 
-# Gradio interface
 def update_game(direction=None):
     if direction:
         game.move(direction)
@@ -109,16 +108,29 @@ def reset_game():
     game = Game()
     return board_to_html(game.board), game.status
 
+# Simulate arrow key presses (for demonstration)
+def simulate_key_press(direction):
+    if direction == "up":
+        pyautogui.press("up")
+    elif direction == "down":
+        pyautogui.press("down")
+    elif direction == "left":
+        pyautogui.press("left")
+    elif direction == "right":
+        pyautogui.press("right")
+    return update_game(direction)
+
 with gr.Blocks(title="2048") as demo:
     gr.Markdown("# 2048")
     gr.Markdown("Slide tiles to merge numbers and reach 2048!")
     board_output = gr.HTML(value=board_to_html(game.board))
     status_output = gr.Textbox(value=game.status, label="Status")
     with gr.Row():
-        gr.Button("⬆️ Up").click(fn=lambda: update_game("up"), outputs=[board_output, status_output])
-        gr.Button("⬇️ Down").click(fn=lambda: update_game("down"), outputs=[board_output, status_output])
-        gr.Button("⬅️ Left").click(fn=lambda: update_game("left"), outputs=[board_output, status_output])
-        gr.Button("➡️ Right").click(fn=lambda: update_game("right"), outputs=[board_output, status_output])
+        gr.Button("⬆️ Up").click(fn=lambda: simulate_key_press("up"), outputs=[board_output, status_output])
+        gr.Button("⬇️ Down").click(fn=lambda: simulate_key_press("down"), outputs=[board_output, status_output])
+        gr.Button("⬅️ Left").click(fn=lambda: simulate_key_press("left"), outputs=[board_output, status_output])
+        gr.Button("➡️ Right").click(fn=lambda: simulate_key_press("right"), outputs=[board_output, status_output])
     gr.Button("Reset Game").click(fn=reset_game, outputs=[board_output, status_output])
+
 
 demo.launch()
