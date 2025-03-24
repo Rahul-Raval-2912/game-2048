@@ -1,13 +1,12 @@
 import gradio as gr
 import random
 import copy
-import pyautogui
 
 class Game:
     def __init__(self):
         self.board = [[0] * 4 for _ in range(4)]
         self.score = 0
-        self.status = "Slide tiles to start!"
+        self.status = "Slide tiles to start! Use arrow keys or buttons."
         self.add_tile()
         self.add_tile()
 
@@ -77,7 +76,6 @@ class Game:
         over, message = self.is_game_over()
         self.status = message if over else f"Score: {self.score} - Keep playing!"
 
-# Display as HTML with numbers
 def board_to_html(board):
     html = "<table style='font-size: 24px; text-align: center; border-collapse: collapse;'>"
     tile_styles = {
@@ -95,9 +93,10 @@ def board_to_html(board):
     html += "</table>"
     return html
 
-
+# Game instance
 game = Game()
 
+# Gradio interface functions
 def update_game(direction=None):
     if direction:
         game.move(direction)
@@ -108,29 +107,39 @@ def reset_game():
     game = Game()
     return board_to_html(game.board), game.status
 
-# Simulate arrow key presses (for demonstration)
-def simulate_key_press(direction):
-    if direction == "up":
-        pyautogui.press("up")
-    elif direction == "down":
-        pyautogui.press("down")
-    elif direction == "left":
-        pyautogui.press("left")
-    elif direction == "right":
-        pyautogui.press("right")
-    return update_game(direction)
+#change with javascript pyautogui because does not support 
+custom_js = """
+document.addEventListener('keydown', function(event) {
+    let direction = null;
+    switch(event.key) {
+        case 'ArrowUp': direction = 'up'; break;
+        case 'ArrowDown': direction = 'down'; break;
+        case 'ArrowLeft': direction = 'left'; break;
+        case 'ArrowRight': direction = 'right'; break;
+    }
+    if (direction) {
+        event.preventDefault(); // Prevent scrolling
+        const buttons = document.querySelectorAll('button');
+        buttons.forEach(button => {
+            if (button.textContent.includes(direction.toUpperCase())) {
+                button.click(); // Trigger the corresponding button click
+            }
+        });
+    }
+});
+"""
 
-with gr.Blocks(title="2048") as demo:
+# Gradio interface
+with gr.Blocks(title="2048", js=custom_js) as demo:
     gr.Markdown("# 2048")
-    gr.Markdown("Slide tiles to merge numbers and reach 2048!")
+    gr.Markdown("Slide tiles to merge numbers and reach 2048! Use arrow keys or buttons.")
     board_output = gr.HTML(value=board_to_html(game.board))
     status_output = gr.Textbox(value=game.status, label="Status")
     with gr.Row():
-        gr.Button("⬆️ Up").click(fn=lambda: simulate_key_press("up"), outputs=[board_output, status_output])
-        gr.Button("⬇️ Down").click(fn=lambda: simulate_key_press("down"), outputs=[board_output, status_output])
-        gr.Button("⬅️ Left").click(fn=lambda: simulate_key_press("left"), outputs=[board_output, status_output])
-        gr.Button("➡️ Right").click(fn=lambda: simulate_key_press("right"), outputs=[board_output, status_output])
+        gr.Button("⬆️ Up").click(fn=lambda: update_game("up"), outputs=[board_output, status_output])
+        gr.Button("⬇️ Down").click(fn=lambda: update_game("down"), outputs=[board_output, status_output])
+        gr.Button("⬅️ Left").click(fn=lambda: update_game("left"), outputs=[board_output, status_output])
+        gr.Button("➡️ Right").click(fn=lambda: update_game("right"), outputs=[board_output, status_output])
     gr.Button("Reset Game").click(fn=reset_game, outputs=[board_output, status_output])
-
 
 demo.launch()
