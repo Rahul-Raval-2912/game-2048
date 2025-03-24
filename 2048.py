@@ -107,7 +107,7 @@ def reset_game():
     game = Game()
     return board_to_html(game.board), game.status
 
-#change with javascript pyautogui because does not support 
+# JavaScript for arrow key support
 custom_js = """
 document.addEventListener('keydown', function(event) {
     let direction = null;
@@ -121,8 +121,9 @@ document.addEventListener('keydown', function(event) {
         event.preventDefault(); // Prevent scrolling
         const buttons = document.querySelectorAll('button');
         buttons.forEach(button => {
-            if (button.textContent.includes(direction.toUpperCase())) {
-                button.click(); // Trigger the corresponding button click
+            // Match button text (e.g., "⬆️ Up" contains "up")
+            if (button.textContent.toLowerCase().includes(direction)) {
+                button.click();
             }
         });
     }
@@ -136,10 +137,17 @@ with gr.Blocks(title="2048", js=custom_js) as demo:
     board_output = gr.HTML(value=board_to_html(game.board))
     status_output = gr.Textbox(value=game.status, label="Status")
     with gr.Row():
-        gr.Button("⬆️ Up").click(fn=lambda: update_game("up"), outputs=[board_output, status_output])
-        gr.Button("⬇️ Down").click(fn=lambda: update_game("down"), outputs=[board_output, status_output])
-        gr.Button("⬅️ Left").click(fn=lambda: update_game("left"), outputs=[board_output, status_output])
-        gr.Button("➡️ Right").click(fn=lambda: update_game("right"), outputs=[board_output, status_output])
-    gr.Button("Reset Game").click(fn=reset_game, outputs=[board_output, status_output])
+        btn_up = gr.Button("⬆️ Up")
+        btn_down = gr.Button("⬇️ Down")
+        btn_left = gr.Button("⬅️ Left")
+        btn_right = gr.Button("➡️ Right")
+    reset_btn = gr.Button("Reset Game")
 
-demo.launch()
+    # Event bindings
+    btn_up.click(fn=lambda: update_game("up"), outputs=[board_output, status_output])
+    btn_down.click(fn=lambda: update_game("down"), outputs=[board_output, status_output])
+    btn_left.click(fn=lambda: update_game("left"), outputs=[board_output, status_output])
+    btn_right.click(fn=lambda: update_game("right"), outputs=[board_output, status_output])
+    reset_btn.click(fn=reset_game, outputs=[board_output, status_output])
+
+demo.launch(share='True')
