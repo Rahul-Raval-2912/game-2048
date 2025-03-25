@@ -2,11 +2,12 @@ import gradio as gr
 import random
 import copy
 
+
 class Game:
     def __init__(self):
         self.board = [[0] * 4 for _ in range(4)]
         self.score = 0
-        self.status = "Slide tiles to start! Use arrow keys or buttons."
+        self.status = "Slide tiles to start!"
         self.add_tile()
         self.add_tile()
 
@@ -76,6 +77,7 @@ class Game:
         over, message = self.is_game_over()
         self.status = message if over else f"Score: {self.score} - Keep playing!"
 
+# Display as HTML with numbers
 def board_to_html(board):
     html = "<table style='font-size: 24px; text-align: center; border-collapse: collapse;'>"
     tile_styles = {
@@ -96,7 +98,7 @@ def board_to_html(board):
 # Game instance
 game = Game()
 
-# Gradio interface functions
+# Gradio interface
 def update_game(direction=None):
     if direction:
         game.move(direction)
@@ -107,47 +109,16 @@ def reset_game():
     game = Game()
     return board_to_html(game.board), game.status
 
-# JavaScript for arrow key support
-custom_js = """
-document.addEventListener('keydown', function(event) {
-    let direction = null;
-    switch(event.key) {
-        case 'ArrowUp': direction = 'up'; break;
-        case 'ArrowDown': direction = 'down'; break;
-        case 'ArrowLeft': direction = 'left'; break;
-        case 'ArrowRight': direction = 'right'; break;
-    }
-    if (direction) {
-        event.preventDefault(); // Prevent scrolling
-        const buttons = document.querySelectorAll('button');
-        buttons.forEach(button => {
-            // Match button text (e.g., "⬆️ Up" contains "up")
-            if (button.textContent.toLowerCase().includes(direction)) {
-                button.click();
-            }
-        });
-    }
-});
-"""
-
-# Gradio interface
-with gr.Blocks(title="2048", js=custom_js) as demo:
+with gr.Blocks(title="2048") as demo:
     gr.Markdown("# 2048")
-    gr.Markdown("Slide tiles to merge numbers and reach 2048! Use arrow keys or buttons.")
+    gr.Markdown("Slide tiles to merge numbers and reach 2048!")
     board_output = gr.HTML(value=board_to_html(game.board))
     status_output = gr.Textbox(value=game.status, label="Status")
     with gr.Row():
-        btn_up = gr.Button("⬆️ Up")
-        btn_down = gr.Button("⬇️ Down")
-        btn_left = gr.Button("⬅️ Left")
-        btn_right = gr.Button("➡️ Right")
-    reset_btn = gr.Button("Reset Game")
+        gr.Button("⬆️ Up").click(fn=lambda: update_game("up"), outputs=[board_output, status_output])
+        gr.Button("⬇️ Down").click(fn=lambda: update_game("down"), outputs=[board_output, status_output])
+        gr.Button("⬅️ Left").click(fn=lambda: update_game("left"), outputs=[board_output, status_output])
+        gr.Button("➡️ Right").click(fn=lambda: update_game("right"), outputs=[board_output, status_output])
+    gr.Button("Reset Game").click(fn=reset_game, outputs=[board_output, status_output])
 
-    # Event bindings
-    btn_up.click(fn=lambda: update_game("up"), outputs=[board_output, status_output])
-    btn_down.click(fn=lambda: update_game("down"), outputs=[board_output, status_output])
-    btn_left.click(fn=lambda: update_game("left"), outputs=[board_output, status_output])
-    btn_right.click(fn=lambda: update_game("right"), outputs=[board_output, status_output])
-    reset_btn.click(fn=reset_game, outputs=[board_output, status_output])
-
-demo.launch(share='True')
+demo.launch()
