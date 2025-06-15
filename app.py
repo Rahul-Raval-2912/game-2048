@@ -1,3 +1,6 @@
+# 2048 Game - A Flask-based implementation
+# Copyright (c) 2025 Rahul Raval
+# Licensed under the MIT License. See LICENSE file in the project root for details.
 from flask import Flask, render_template, request, jsonify
 import random
 import copy

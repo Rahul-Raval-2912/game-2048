@@ -1,3 +1,6 @@
+// 2048 Game - JavaScript logic
+// Copyright (c) 2025 Rahul Raval
+// Licensed under the MIT License. See LICENSE file in the project root for details.
 const tileStyles = {
     0: "tile-0", 2: "tile-2", 4: "tile-4", 8: "tile-8",
     16: "tile-16", 32: "tile-32", 64: "tile-64", 128: "tile-128",
