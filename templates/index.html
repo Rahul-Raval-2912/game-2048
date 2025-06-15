@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2048</title>
+    <link rel="stylesheet" href="/static/style.css?v={{ 'now' | strftime('%s') }}">
+</head>
+<body>
+    <h1>2048</h1>
+    <p>Slide tiles to merge numbers and reach 2048! Use arrow keys, mouse wheel, or swipe on mobile.</p>
+    <div id="current-time">{{ current_time }}</div>
+    <div id="high-score">High Score: 0</div>
+    <div id="score">Score: {{ score }}</div>
+    <div id="status"></div>
+    <div id="board-container">
+        <div id="overlay" class="hidden"></div>
+        <div id="board" data-board='{{ board | tojson | safe }}'>
+            <table>
+                {% for row in board %}
+                <tr>
+                    {% for cell in row %}
+                    <td class="tile-{{ cell }}">{{ cell if cell != 0 else '' }}</td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+    <button id="reset-btn">Reset Game</button>
+    <h2>High Scores</h2>
+    <ul id="high-scores"></ul>
+    <script src="/static/game.js?v={{ 'now' | strftime('%s') }}"></script>
+</body>
+</html>
